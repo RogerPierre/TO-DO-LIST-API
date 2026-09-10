@@ -7,7 +7,9 @@ authors = [
     { name = "RogerPierre", email = "rogerpierrereis@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "fastapi>=0.141.1",
+]
 
 [project.scripts]
 to-do-list-api = "to_do_list_api:main"
