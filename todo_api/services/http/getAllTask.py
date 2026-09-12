@@ -65,7 +65,7 @@ def GetTask(
         if data_inicio is not None:
             listaResultado=[
                 task for task in listaResultado
-                if datetime.combine(data_inicio,datetime.min.time()) > task.data_criacao 
+                if datetime.combine(data_inicio,datetime.min.time()) < task.data_criacao 
             ]
         inicio=((pagina-1)*limite)
         paginaRen=listaResultado[inicio:inicio + limite]

@@ -51,12 +51,12 @@ def GetAll(
                         Query( title="data inicio",
                               description="Um valor do tipo date(datetime)"
                         )
-                    ]=10,
+                    ]=None,
     data_fim:Annotated[date,
                         Query( title="data fim",
                               description="Um valor do tipo date(datetime)"
                         )
-                    ]=10
+                    ]=None
     
 ):
     return GetTask(concluida=concluida,
