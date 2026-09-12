@@ -1,6 +1,6 @@
 from todo_api.repository.InMemoryDB import db
 from fastapi import HTTPException
-
+#serviço http de get pelo id
 def GetTaskById(id:int):
     if id>len(db) or id<=0:
         raise HTTPException(

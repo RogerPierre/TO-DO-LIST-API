@@ -3,6 +3,7 @@ from todo_api.squemas.taskSquema import TaskSquema,TaskDB
 from fastapi import HTTPException
 from datetime import datetime
 
+#serviço http de put
 def PutTask(id:int,task:TaskSquema):
     for i,u in enumerate(db):
         if u.id==id:

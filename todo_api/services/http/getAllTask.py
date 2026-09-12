@@ -8,6 +8,7 @@ def Includes(lista:list[str],tag:str):
 
             else:
                 return False
+# servico para a requisição http get em lista
 
 def GetTask(
         concluida:bool|None,
@@ -24,21 +25,26 @@ def GetTask(
     
     
     for i,u in enumerate(listaResultado):
+        #filtra pelo valor de concluida
         if concluida is not None:
             listaResultado=[
                 task for task in listaResultado
                 if u.concluida is concluida
                 ]
+        #filtra pelo valor da tag
         if tag is not None:
             listaResultado=[
                 task for task in listaResultado
                     if Includes(lista=task.tags,tag=tag)
                 ]
+        #filtra pelo valor do titulo
         if titulo is not None:
             listaResultado=[
                 task for task in listaResultado
                     if task.titulo==titulo
                 ]
+        #ordena pelo valor de ordenada_por E define a direção da ordenação pelo parametro ordem
+        #1:- PROBLEMA: O CÓDIGOABAIXO PODE SER RESUMIDO E OTIMIZADO.
         if ordenar_por is not None:
             if ordenar_por == "id":
                 listaResultado=sorted( listaResultado,key=lambda task:task.id,reverse=ordem=="desc")
@@ -57,18 +63,23 @@ def GetTask(
                       status_code=400,
                       detail="Ordenar por recebeu um valor invalido."
                  )
+        #2:-PROBLEMA: PARSEAMENTO REDUNDANTE DE DATE POR DATETIME
+        #filtra pelo valor de data_fim
         if data_fim is not None:
             listaResultado=[
                 task for task in listaResultado
                 if datetime.combine(data_fim,datetime.min.time()) > task.data_criacao 
             ]
+        #filtra pelo valor de data_inicio
         if data_inicio is not None:
             listaResultado=[
                 task for task in listaResultado
                 if datetime.combine(data_inicio,datetime.min.time()) < task.data_criacao 
             ]
+        #logica de paginação
         inicio=((pagina-1)*limite)
         paginaRen=listaResultado[inicio:inicio + limite]
+    #retorno da response
     return {
         "pagina": pagina,
         "limite": limite,

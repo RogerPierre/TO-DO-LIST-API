@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+#esquemas em pydantic como camada model da aplicação
 class TaskSquema(BaseModel):
     titulo:str
     descricao:str

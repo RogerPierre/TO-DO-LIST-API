@@ -1,10 +1,5 @@
 from fastapi import APIRouter,Query
-from ..services.http.getAllTask import GetTask
-from ..services.http.postTask import PostTask
-from ..services.http.getTaskById import GetTaskById
-from ..services.http.putTask import PutTask
-from ..services.http.deleteTask import DeleteTask
-from ..squemas.taskSquema import TaskSquema
+from todo_api import PostTask,GetTaskById,GetTask,DeleteTask,PutTask,TaskSquema
 from typing import Annotated
 from datetime import date
 routerTask=APIRouter()

@@ -1,7 +1,7 @@
 from todo_api.repository.InMemoryDB import db
 from fastapi import HTTPException
 
-
+# servico para a requisição http delete
 def DeleteTask(id:int):
     for i,u in enumerate(db):
         if u.id==id:
