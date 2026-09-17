@@ -1,1 +1,1 @@
-from InMemoryDB import db
+from .InMemoryDB import *

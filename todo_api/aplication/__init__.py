@@ -1,2 +1,2 @@
-from root import *
-from tasksRouter import *
+from .root import *
+from .tasksRouter import *

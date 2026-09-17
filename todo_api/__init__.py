@@ -1,3 +1,3 @@
-from squemas.taskSquema import *
-from services.http import *
-from aplication import *
+from .squemas import *
+from .services.http import *
+from .aplication import *
