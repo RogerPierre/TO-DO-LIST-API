@@ -29,7 +29,7 @@ def GetTask(
         if concluida is not None:
             listaResultado=[
                 task for task in listaResultado
-                if u.concluida is concluida
+                if task.concluida is concluida
                 ]
         #filtra pelo valor da tag
         if tag is not None:
@@ -76,9 +76,9 @@ def GetTask(
                 task for task in listaResultado
                 if datetime.combine(data_inicio,datetime.min.time()) < task.data_criacao 
             ]
-        #logica de paginação
-        inicio=((pagina-1)*limite)
-        paginaRen=listaResultado[inicio:inicio + limite]
+    #logica de paginação
+    inicio=((pagina-1)*limite)
+    paginaRen=listaResultado[inicio:inicio + limite]
     #retorno da response
     return {
         "pagina": pagina,

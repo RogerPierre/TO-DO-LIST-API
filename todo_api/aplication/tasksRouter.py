@@ -55,7 +55,8 @@ def GetAll(
     
 ):
     return GetTask(concluida=concluida,
-                   tag=tag,titulo=titulo,
+                   tag=tag,
+                   titulo=titulo,
                    ordenar_por=ordenar_por,
                    ordem=ordem,
                    pagina=pagina,
