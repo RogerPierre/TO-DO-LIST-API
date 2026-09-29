@@ -2,8 +2,11 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from src.main import app
-
-
+@pytest.fixture
+async def popular_database(client,task):
+    await client.post("/tarefas/",json=task)
+    await client.post("/tarefas/",json=task)
+    await client.post("/tarefas/",json=task)
 @pytest.fixture
 async def client():
     transport = ASGITransport(app=app)
@@ -14,26 +17,9 @@ async def client():
     ) as client:
         yield client
 @pytest.fixture
-def tasks():
-    return[
-        {"titulo": "Estudar PPI",
+def task():
+    return {"titulo": "Estudar PPI",
                 "descricao": "Revisar bibliotecas e comandos",
                 "tags": ["python", "estudo","PPI"],
                 "concluida":False
-                },
-        {"titulo": "Estudar PPI",
-                    "descricao": "Revisar bibliotecas e comandos",
-                    "tags": ["python", "estudo","PPI"],
-                    "concluida":False
-                    },
-        {"titulo": "Estudar PPI",
-                "descricao": "Revisar bibliotecas e comandos",
-                "tags": ["python", "estudo","PPI"],
-                "concluida":False
-                },
-        {"titulo": "Estudar PPI",
-                "descricao": "Revisar bibliotecas e comandos",
-                "tags": ["python", "estudo","PPI"],
-                "concluida":False
-                },
-    ]
+                }
