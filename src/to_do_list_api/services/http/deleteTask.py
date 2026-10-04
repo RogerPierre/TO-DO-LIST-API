@@ -1,4 +1,4 @@
-from to_do_list_api.repository.InMemoryDB import db
+from todo_api.repository.InMemoryDB import db
 from fastapi import HTTPException
 
 # servico para a requisição http delete

@@ -1,5 +1,5 @@
 import pytest
-from src.to_do_list_api.squemas.taskSquema import TaskDB
+from src.todo_api.squemas.taskSquema import TaskDB
 # funções auxiliares-----------------------------
 
     

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from to_do_list_api import routerTask
-from to_do_list_api.aplication.root import router as root
+from todo_api import routerTask
+from todo_api.aplication.root import router as root
 
 
 app=FastAPI()

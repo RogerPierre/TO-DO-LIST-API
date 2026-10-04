@@ -1,5 +1,5 @@
-from to_do_list_api.repository.InMemoryDB import db
-from to_do_list_api.squemas.taskSquema import TaskSquema,TaskDB
+from todo_api.repository.InMemoryDB import db
+from todo_api.squemas.taskSquema import TaskSquema,TaskDB
 from fastapi import HTTPException
 from datetime import datetime
 

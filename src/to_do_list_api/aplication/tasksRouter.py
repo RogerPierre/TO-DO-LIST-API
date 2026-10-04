@@ -1,9 +1,9 @@
 from fastapi import APIRouter,Query
-from to_do_list_api import PostTask,GetTaskById,GetTask,DeleteTask,PutTask,TaskSquema
+from todo_api import PostTask,GetTaskById,GetTask,DeleteTask,PutTask,TaskSquema
 from typing import Annotated
 from datetime import date
 
-from to_do_list_api.squemas.taskSquema import TaskDB
+from todo_api.squemas.taskSquema import TaskDB
 routerTask=APIRouter()
 
 @routerTask.get("/", status_code=200)

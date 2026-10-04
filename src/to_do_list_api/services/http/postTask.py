@@ -1,5 +1,5 @@
 
-from to_do_list_api.repository.InMemoryDB import db
+from todo_api.repository.InMemoryDB import db
 from ...squemas.taskSquema import TaskSquema,TaskDB
 
 #serviço http de post de tarefa
