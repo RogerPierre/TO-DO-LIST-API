@@ -1,4 +1,4 @@
-from todo_api.repository.InMemoryDB import db
+from to_do_list_api.repository.InMemoryDB import db
 from fastapi import HTTPException
 #serviço http de get pelo id
 def GetTaskById(id:int): 
