@@ -1,7 +1,7 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from src.main import app
+from main import app
 @pytest.fixture
 async def popular_database(client,task):
     await client.post("/tarefas/",json=task)
