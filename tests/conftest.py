@@ -1,7 +1,11 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
-
+from todo_api.repository.InMemoryDB import db
 from main import app
+
+@pytest.fixture(autouse=True)
+def limpar_db():
+    db.clear()
 @pytest.fixture
 async def popular_database(client,task):
     await client.post("/tarefas/",json=task)

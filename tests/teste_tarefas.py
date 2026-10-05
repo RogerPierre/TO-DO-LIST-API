@@ -1,7 +1,7 @@
 import pytest
 from src.todo_api.squemas.taskSquema import TaskDB
 # funções auxiliares-----------------------------
-
+from todo_api.repository.InMemoryDB import db
     
 
 # testes Metodo:GET------------------------------
@@ -18,7 +18,7 @@ async def teste_api_tarefas_retorna_vazio_quando_vazio(client):
 @pytest.mark.anyio
 async def teste_api_retorna_todas_tarefas_cadastradas(client,popular_database):
     res=await client.get("/tarefas/")
-    assert len(res.json()["dados"])==3# o popular_database retorna sempre 3
+    assert len(res.json()["dados"])==3# o popular_database retorna sempre 3 tasks
 
 
 @pytest.mark.anyio
@@ -130,6 +130,7 @@ async def teste_api_exclusao_tarefa_existente(client,popular_database):
 async def teste_api_tarefa_existente_excluida_aparece_lista(client,popular_database):
     #verificar se a tarefa existe
     res_get_f= await client.get(f"/tarefas/")
+    
     assert res_get_f.json()['dados'][0]['id']==1
 
     #deleta
