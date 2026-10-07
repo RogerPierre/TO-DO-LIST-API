@@ -183,14 +183,26 @@ async def teste_api_filtrar_tarefas_por_Tag(client,popular_database):
 async def teste_api_filtrar_tarefas_por_Titulo(client,popular_database):
     res=await client.get(f"/tarefas/?titulo=python/")
     for task in res.json()['dados']:
-        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não contem o termo 'python', mas foi retornada na filtragem por titulo."
 
 
 # testes Metodo:Filtros-combinados------------------------------
 @pytest.mark.anyio
-async def teste_api_filtrar_tarefas_por_Titulo(client,popular_database):
+async def teste_api_filtrar_tarefas_por_Titulo_e_Tag(client,popular_database):
     res=await client.get(f"/tarefas/?concluida=false&tag=python")
+    print(res.status_code)
     for task in res.json()['dados']:
-        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
-        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+        assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
+        assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."       
 
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_ordenadas_por_data_criacao_desc(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=false&tag=python&ordenar_por=data_criacao&ordem=desc")
+    print(res.status_code)
+    dados=res.json()['dados']
+    esta_ordenada_desc = dados == sorted(
+    dados, 
+    key=lambda item: item["data_criacao"], 
+    reverse=True
+    )
+    assert esta_ordenada_desc, "Erro: As tarefas não estão ordenadas corretamente por data de criação em ordem decrescente."
