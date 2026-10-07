@@ -1,13 +1,6 @@
 from todo_api.repository.InMemoryDB import db
 from fastapi import HTTPException
 from datetime import date,datetime
-def Includes(lista:list[str],tag:str):
-        for tg in lista:
-            if tg==tag:
-                   return True
-
-            else:
-                return False
 # servico para a requisição http get em lista
 
 def GetTask(
@@ -35,7 +28,7 @@ def GetTask(
         if tag is not None:
             listaResultado=[
                 task for task in listaResultado
-                    if Includes(lista=task.tags,tag=tag)
+                    if tag in task.tags
                 ]
         #filtra pelo valor do titulo
         if titulo is not None:
