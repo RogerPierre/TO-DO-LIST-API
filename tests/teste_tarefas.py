@@ -1,7 +1,6 @@
 import pytest
 from src.todo_api.squemas.taskSquema import TaskDB
 # funções auxiliares-----------------------------
-from todo_api.repository.InMemoryDB import db
     
 
 # testes Metodo:GET------------------------------
@@ -136,7 +135,7 @@ async def teste_api_tarefa_existente_excluida_aparece_lista(client,popular_datab
     #deleta
     await client.delete(f"/tarefas/{1}")
 
-    #verificar se a tarefa nao existe
+    #verificar se a tInMemoryDBarefa nao existe
     res_get_l= await client.get(f"/tarefas/")
     assert res_get_l.json()['dados'][0]['id']!=1
 @pytest.mark.anyio
