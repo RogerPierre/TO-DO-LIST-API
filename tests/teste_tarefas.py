@@ -194,14 +194,70 @@ async def teste_api_filtrar_tarefas_por_Titulo_e_Tag(client,popular_database):
         assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
         assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."       
 
+@pytest.fixture
+async def tarefas_para_ordenacao(client):
+    tarefas = [
+        {
+            "titulo": "Zulu",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-03T00:00:00",
+            "data_atualizacao": "2024-04-02T00:00:00",
+        },
+        {
+            "titulo": "Bravo",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-01T00:00:00",
+            "data_atualizacao": "2024-04-04T00:00:00",
+        },
+        {
+            "titulo": "Delta",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-04T00:00:00",
+            "data_atualizacao": "2024-04-01T00:00:00",
+        },
+        {
+            "titulo": "Alpha",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-02T00:00:00",
+            "data_atualizacao": "2024-04-03T00:00:00",
+        },
+    ]
+
+    for tarefa in tarefas:
+        response = await client.post("/tarefas/", json=tarefa)
+        assert response.status_code == 201
+
+
+@pytest.mark.parametrize(
+    ("ordenar_por", "ordem", "ids_esperados"),
+    [
+        ("data_criacao", "asc", [2, 4, 1, 3]),
+        ("data_criacao", "desc", [3, 1, 4, 2]),
+        ("data_atualizacao", "asc", [3, 1, 4, 2]),
+        ("data_atualizacao", "desc", [2, 4, 1, 3]),
+        ("titulo", "asc", [4, 2, 3, 1]),
+        ("titulo", "desc", [1, 3, 2, 4]),
+        ("id", "asc", [1, 2, 3, 4]),
+        ("id", "desc", [4, 3, 2, 1]),
+    ],
+)
 @pytest.mark.anyio
-async def teste_api_filtrar_tarefas_ordenadas_por_data_criacao_desc(client,popular_database):
-    res=await client.get(f"/tarefas/?concluida=false&tag=python&ordenar_por=data_criacao&ordem=desc")
-    print(res.status_code)
-    dados=res.json()['dados']
-    esta_ordenada_desc = dados == sorted(
-    dados, 
-    key=lambda item: item["data_criacao"], 
-    reverse=True
+async def teste_api_ordena_tarefas(
+    client, tarefas_para_ordenacao, ordenar_por, ordem, ids_esperados
+):
+    response = await client.get(
+        "/tarefas/",
+        params={"ordenar_por": ordenar_por, "ordem": ordem},
     )
-    assert esta_ordenada_desc, "Erro: As tarefas não estão ordenadas corretamente por data de criação em ordem decrescente."
+
+    assert response.status_code == 200
+    ids_retornados = [tarefa["id"] for tarefa in response.json()["dados"]]
+    assert ids_retornados == ids_esperados

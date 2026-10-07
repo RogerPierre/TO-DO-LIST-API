@@ -2,6 +2,7 @@
 from todo_api.repository.InMemoryDB import db
 from ...squemas.taskSquema import TaskSquema,TaskDB
 
+
 #serviço http de post de tarefa
 def PostTask(request:TaskSquema):
     newId=1
