@@ -57,13 +57,13 @@ async def teste_api_criar_tarefa_codigo_retorna_201(client,task):
 @pytest.mark.anyio
 async def teste_api_validar_response_json_tarefas(task,client):
     res=await client.post("/tarefas/",json=task)
-    task=TaskDB.model_validate(res.json())
+    task1=TaskDB.model_validate(res.json())
 
     #testes especificos- validação da estrutura do response
-    assert task.id
-    assert task.concluida==False
-    assert task.data_atualizacao
-    assert task.data_criacao
+    assert task1.id
+    assert task1.concluida==task['concluida']
+    assert task1.data_atualizacao
+    assert task1.data_criacao
 
 @pytest.mark.anyio
 async def teste_api_Erro_titulo_vazio(client,task):
@@ -84,10 +84,10 @@ async def teste_api_atualizar_titulo_tarefa(client,popular_database,task):
     resPut=await client.put(f"/tarefas/{1}",json=task_title_changed)
     assert resPut.json()["titulo"]!=resGet.json()["titulo"]
 @pytest.mark.anyio
-async def teste_api_atualizar_tarefa_conclusao_true(client,popular_database,task):
-    task_concluida_changed=task
-    task_concluida_changed["concluida"]=not task['concluida']
+async def teste_api_atualizar_tarefa_conclusao_true(client,popular_database):
     resGet=await client.get(f"/tarefas/{1}")
+    task_concluida_changed=resGet.json()
+    task_concluida_changed["concluida"]=not resGet.json()['concluida']
     resPut=await client.put(f"/tarefas/{1}",json=task_concluida_changed)
     assert resPut.json()["concluida"] is not resGet.json()['concluida']
 @pytest.mark.anyio
@@ -157,3 +157,40 @@ async def teste_api_exclusao_tarefa_inexistente_retorna_404(client,popular_datab
     #deleta
     res=await client.delete(f"/tarefas/{99}")
     assert res.status_code==404
+
+
+# testes Metodo:Filtros------------------------------
+
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Status_Concluida(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=true")
+    for task in res.json()['dados']:
+        assert task['concluida'] is True,f"Erro: A tarefa {task['id']} não está concluída, mas foi retornada na filtragem por status concluída."
+
+
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Status_Nao_Concluida(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=false")
+    for task in res.json()['dados']:
+        assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
+
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Tag(client,popular_database):
+    res=await client.get(f"/tarefas/?tag=python")
+    for task in res.json()['dados']:
+        assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Titulo(client,popular_database):
+    res=await client.get(f"/tarefas/?titulo=python/")
+    for task in res.json()['dados']:
+        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+
+
+# testes Metodo:Filtros-combinados------------------------------
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Titulo(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=false&tag=python")
+    for task in res.json()['dados']:
+        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+
