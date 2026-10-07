@@ -8,9 +8,13 @@ def limpar_db():
     db.clear()
 @pytest.fixture
 async def popular_database(client,task):
-    await client.post("/tarefas/",json=task)
-    await client.post("/tarefas/",json=task)
-    await client.post("/tarefas/",json=task)
+    tarefas = [
+        {**task, "titulo": "Estudar Python", "descricao": "Revisar conceitos básicos", "tags": ["python", "estudo"], "concluida": False},
+        {**task, "titulo": "Fazer exercícios", "descricao": "Praticar programação", "tags": ["exercicios", "programacao"], "concluida": False},
+        {**task, "titulo": "Organizar projetos", "descricao": "Atualizar tarefas pendentes", "tags": ["organizacao", "projetos"], "concluida": True},
+    ]
+    for tarefa in tarefas:
+        await client.post("/tarefas/", json=tarefa)
 @pytest.fixture
 async def client():
     transport = ASGITransport(app=app)
@@ -25,5 +29,5 @@ def task():
     return {"titulo": "Estudar PPI",
                 "descricao": "Revisar bibliotecas e comandos",
                 "tags": ["python", "estudo","PPI"],
-                "concluida":False
+                "concluida":True
                 }
