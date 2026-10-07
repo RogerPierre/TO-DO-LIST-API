@@ -135,7 +135,7 @@ async def teste_api_tarefa_existente_excluida_aparece_lista(client,popular_datab
     #deleta
     await client.delete(f"/tarefas/{1}")
 
-    #verificar se a tInMemoryDBarefa nao existe
+    #verificar se a tarefa nao existe
     res_get_l= await client.get(f"/tarefas/")
     assert res_get_l.json()['dados'][0]['id']!=1
 @pytest.mark.anyio
@@ -194,6 +194,7 @@ async def teste_api_filtrar_tarefas_por_Titulo_e_Tag(client,popular_database):
         assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
         assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."       
 
+from todo_api.repository.InMemoryDB import db
 @pytest.mark.anyio
 async def teste_api_filtrar_tarefas_ordenadas_por_data_criacao_desc(client,popular_database):
     res=await client.get(f"/tarefas/?concluida=false&tag=python&ordenar_por=data_criacao&ordem=desc")
