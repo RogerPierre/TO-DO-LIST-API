@@ -31,3 +31,46 @@ def task():
                 "tags": ["python", "estudo","PPI"],
                 "concluida":True
                 }
+
+@pytest.fixture
+async def tarefas_para_ordenacao(client):
+    tarefas = [
+        {
+            "titulo": "Zulu",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-03T00:00:00",
+            "data_atualizacao": "2024-04-02T00:00:00",
+        },
+        {
+            "titulo": "Bravo",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-01T00:00:00",
+            "data_atualizacao": "2024-04-04T00:00:00",
+        },
+        {
+            "titulo": "Delta",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-04T00:00:00",
+            "data_atualizacao": "2024-04-01T00:00:00",
+        },
+        {
+            "titulo": "Alpha",
+            "descricao": "Tarefa de teste",
+            "tags": [],
+            "concluida": False,
+            "data_criacao": "2024-04-02T00:00:00",
+            "data_atualizacao": "2024-04-03T00:00:00",
+        },
+    ]
+
+    for tarefa in tarefas:
+        response = await client.post("/tarefas/", json=tarefa)
+        assert response.status_code == 201
+
+

@@ -192,50 +192,8 @@ async def teste_api_filtrar_tarefas_por_Titulo_e_Tag(client,popular_database):
     print(res.status_code)
     for task in res.json()['dados']:
         assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
-        assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."       
-
-@pytest.fixture
-async def tarefas_para_ordenacao(client):
-    tarefas = [
-        {
-            "titulo": "Zulu",
-            "descricao": "Tarefa de teste",
-            "tags": [],
-            "concluida": False,
-            "data_criacao": "2024-04-03T00:00:00",
-            "data_atualizacao": "2024-04-02T00:00:00",
-        },
-        {
-            "titulo": "Bravo",
-            "descricao": "Tarefa de teste",
-            "tags": [],
-            "concluida": False,
-            "data_criacao": "2024-04-01T00:00:00",
-            "data_atualizacao": "2024-04-04T00:00:00",
-        },
-        {
-            "titulo": "Delta",
-            "descricao": "Tarefa de teste",
-            "tags": [],
-            "concluida": False,
-            "data_criacao": "2024-04-04T00:00:00",
-            "data_atualizacao": "2024-04-01T00:00:00",
-        },
-        {
-            "titulo": "Alpha",
-            "descricao": "Tarefa de teste",
-            "tags": [],
-            "concluida": False,
-            "data_criacao": "2024-04-02T00:00:00",
-            "data_atualizacao": "2024-04-03T00:00:00",
-        },
-    ]
-
-    for tarefa in tarefas:
-        response = await client.post("/tarefas/", json=tarefa)
-        assert response.status_code == 201
-
-
+        assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."     
+  
 @pytest.mark.parametrize(
     ("ordenar_por", "ordem", "ids_esperados"),
     [
