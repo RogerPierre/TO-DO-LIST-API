@@ -45,8 +45,8 @@ async def teste_api_retorna_pelo_id_tarefa_persistida(client,popular_database):
 @pytest.mark.anyio
 async def teste_api_erro_tarefa_inexistente(client,popular_database):
     res=await client.get(f"/tarefas/{99}")
-    #validar consulta
     assert res.status_code==404
+    assert res.json()["detail"]=="Tarefa não encontrada."
 
 # testes Metodo:POST------------------------------
 @pytest.mark.anyio
@@ -66,10 +66,28 @@ async def teste_api_validar_response_json_tarefas(task,client):
 
 @pytest.mark.anyio
 async def teste_api_Erro_titulo_vazio(client,task):
-    task_Notitle=task
-    task_Notitle["titulo"]=None
-    res=await client.post("/tarefas/",json=task_Notitle)
+    task_sem_titulo={**task}
+    del task_sem_titulo["titulo"]
+
+    res=await client.post("/tarefas/",json=task_sem_titulo)
+
     assert res.status_code==422
+    erro=res.json()["detail"][0]
+    assert erro["loc"]==["body","titulo"]
+    assert erro["type"]=="missing"
+    assert erro["msg"]=="Field required"
+
+@pytest.mark.anyio
+async def teste_api_rejeita_tipo_invalido_em_concluida(client,task):
+    task_tipo_invalido={**task,"concluida":"nao"}
+
+    res=await client.post("/tarefas/",json=task_tipo_invalido)
+
+    assert res.status_code==422
+    erro=res.json()["detail"][0]
+    assert erro["loc"]==["body","concluida"]
+    assert erro["type"]=="bool_parsing"
+    assert "valid boolean" in erro["msg"]
 
 
 
@@ -110,8 +128,8 @@ async def teste_api_atualizar_tarefa_data_criacao(client,popular_database,task):
 @pytest.mark.anyio
 async def teste_api_erro_atualizar_tarefa_inexistente(client,popular_database,task):
     res=await client.put(f"/tarefas/{99}",json=task)
-    #validar consulta
     assert res.status_code==404
+    assert res.json()["detail"]=="Tarefa não encontrada."
 
 
 # testes Metodo:DELETE------------------------------
@@ -153,9 +171,9 @@ async def teste_api_exclusao_codigo_404(client,popular_database):
 
 @pytest.mark.anyio
 async def teste_api_exclusao_tarefa_inexistente_retorna_404(client,popular_database):
-    #deleta
     res=await client.delete(f"/tarefas/{99}")
     assert res.status_code==404
+    assert res.json()["detail"]=="Tarefa não encontrada."
 
 
 # testes Metodo:Filtros------------------------------
@@ -219,3 +237,13 @@ async def teste_api_ordena_tarefas(
     assert response.status_code == 200
     ids_retornados = [tarefa["id"] for tarefa in response.json()["dados"]]
     assert ids_retornados == ids_esperados
+
+@pytest.mark.anyio
+async def teste_api_rejeita_campo_de_ordenacao_invalido(client,popular_database):
+    response=await client.get(
+        "/tarefas/",
+        params={"ordenar_por":"campo_invalido"},
+    )
+
+    assert response.status_code==400
+    assert response.json()["detail"]=="Ordenar por recebeu um valor invalido."

@@ -7,6 +7,6 @@ def GetTaskById(id:int):
             return task
     raise HTTPException(
                 status_code=404,
-                detail="tarefa não encotrada."
+                detail="Tarefa não encontrada."
             )     
     

@@ -16,6 +16,6 @@ def PutTask(id:int,task:TaskSquema):
 
     raise HTTPException(
         status_code=404,
-        detail="Tarefa nâo encontrada"
+        detail="Tarefa não encontrada."
     )
         
