@@ -2,9 +2,11 @@ from fastapi import APIRouter,Query
 from todo_api import PostTask,GetTaskById,GetTask,DeleteTask,PutTask,TaskSquema
 from typing import Annotated
 from datetime import date
+
+from todo_api.squemas.taskSquema import TaskDB
 routerTask=APIRouter()
 
-@routerTask.get("/")
+@routerTask.get("/", status_code=200)
 def GetAll(
     concluida:Annotated[bool,
         Query( title="Concluida",
@@ -65,18 +67,18 @@ def GetAll(
                    data_fim=data_fim
                 )
 
-@routerTask.get("/{id}")
+@routerTask.get("/{id}",status_code=200)
 def GetById(id:int):
     return GetTaskById(id)
 
-@routerTask.post("/")
+@routerTask.post("/",status_code=201)
 def Post(task:TaskSquema):
-    PostTask(task)
-    return task
+    return PostTask(task)
+@routerTask.put("/{id}",status_code=200)
 
-@routerTask.put("/{id}")
 def Put(id:int,Task:TaskSquema):
     return PutTask(id=id,task=Task)
+
 
 @routerTask.delete("/{id}",status_code=204)
 def Delete(id:int):

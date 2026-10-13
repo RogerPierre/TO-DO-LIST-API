@@ -1,0 +1,249 @@
+import pytest
+from src.todo_api.squemas.taskSquema import TaskDB
+# funções auxiliares-----------------------------
+    
+
+# testes Metodo:GET------------------------------
+# OBS: os get tem que ser os primeiros, porque eles presisam de um retorno vazio. Isso evita mais operações.
+@pytest.mark.anyio
+async def teste_api_tarefas_retorna_vazio_quando_vazio(client):
+    res=await client.get("/tarefas/")
+    print(res.json()['dados'])
+    assert res.json()['dados']==[]
+
+# esse teste engloba:
+# Se a API retorna todas as tarefas cadastradas.
+# Se a quantidade de tarefas retornadas corresponde à quantidade de tarefas cadastradas.
+@pytest.mark.anyio
+async def teste_api_retorna_todas_tarefas_cadastradas(client,popular_database):
+    res=await client.get("/tarefas/")
+    assert len(res.json()["dados"])==3# o popular_database retorna sempre 3 tasks
+
+
+@pytest.mark.anyio
+async def teste_api_response_respeita_modelo(client,popular_database):
+    res=await client.get("/tarefas/")
+    task=TaskDB.model_validate(res.json()["dados"][0])
+
+
+
+# testes Metodo:GET- com id------------------------------
+
+# esse teste engloba:
+# Se é possível consultar uma tarefa existente pelo identificador.
+# Se a tarefa retornada possui os dados corretos.
+@pytest.mark.anyio
+async def teste_api_retorna_pelo_id_tarefa_persistida(client,popular_database):
+    res=await client.get(f"/tarefas/{1}")
+
+    #validar consulta
+    assert res.status_code==200
+
+    #validar response
+    TaskDB.model_validate(res.json())
+
+@pytest.mark.anyio
+async def teste_api_erro_tarefa_inexistente(client,popular_database):
+    res=await client.get(f"/tarefas/{99}")
+    assert res.status_code==404
+    assert res.json()["detail"]=="Tarefa não encontrada."
+
+# testes Metodo:POST------------------------------
+@pytest.mark.anyio
+async def teste_api_criar_tarefa_codigo_retorna_201(client,task):
+    response= await client.post("/tarefas/",json=task)
+    assert response.status_code==201,"Código errado"
+@pytest.mark.anyio
+async def teste_api_validar_response_json_tarefas(task,client):
+    res=await client.post("/tarefas/",json=task)
+    task1=TaskDB.model_validate(res.json())
+
+    #testes especificos- validação da estrutura do response
+    assert task1.id
+    assert task1.concluida==task['concluida']
+    assert task1.data_atualizacao
+    assert task1.data_criacao
+
+@pytest.mark.anyio
+async def teste_api_Erro_titulo_vazio(client,task):
+    task_sem_titulo={**task}
+    del task_sem_titulo["titulo"]
+
+    res=await client.post("/tarefas/",json=task_sem_titulo)
+
+    assert res.status_code==422
+    erro=res.json()["detail"][0]
+    assert erro["loc"]==["body","titulo"]
+    assert erro["type"]=="missing"
+    assert erro["msg"]=="Field required"
+
+@pytest.mark.anyio
+async def teste_api_rejeita_tipo_invalido_em_concluida(client,task):
+    task_tipo_invalido={**task,"concluida":"nao"}
+
+    res=await client.post("/tarefas/",json=task_tipo_invalido)
+
+    assert res.status_code==422
+    erro=res.json()["detail"][0]
+    assert erro["loc"]==["body","concluida"]
+    assert erro["type"]=="bool_parsing"
+    assert "valid boolean" in erro["msg"]
+
+
+
+# testes Metodo:PUT------------------------------
+
+@pytest.mark.anyio
+async def teste_api_atualizar_titulo_tarefa(client,popular_database,task):
+    task_title_changed=task
+    task_title_changed["titulo"]="Estudar POI"
+    resGet=await client.get(f"/tarefas/{1}")
+    resPut=await client.put(f"/tarefas/{1}",json=task_title_changed)
+    assert resPut.json()["titulo"]!=resGet.json()["titulo"]
+@pytest.mark.anyio
+async def teste_api_atualizar_tarefa_conclusao_true(client,popular_database):
+    resGet=await client.get(f"/tarefas/{1}")
+    task_concluida_changed=resGet.json()
+    task_concluida_changed["concluida"]=not resGet.json()['concluida']
+    resPut=await client.put(f"/tarefas/{1}",json=task_concluida_changed)
+    assert resPut.json()["concluida"] is not resGet.json()['concluida']
+@pytest.mark.anyio
+async def teste_api_atualizar_tarefa_tags(client,popular_database,task):
+    task_tags_changed=task
+    task_tags_changed["tags"][0]=task_tags_changed['tags'][1]
+    resGet=await client.get(f"/tarefas/{1}")
+    resPut=await client.put(f"/tarefas/{1}",json=task_tags_changed)
+    assert resPut.json()["tags"][0]!=resGet.json()["tags"][0]
+
+@pytest.mark.anyio
+async def teste_api_atualizar_tarefa_data_atualizacao(client,popular_database,task):
+    resGet=await client.get(f"/tarefas/{1}")
+    resPut=await client.put(f"/tarefas/{1}",json=task)
+    assert resPut.json()["data_atualizacao"]!=resGet.json()["data_atualizacao"]
+@pytest.mark.anyio
+async def teste_api_atualizar_tarefa_data_criacao(client,popular_database,task):
+    resGet=await client.get(f"/tarefas/{1}")
+    resPut=await client.put(f"/tarefas/{1}",json=task)
+    assert resPut.json()["data_criacao"]==resGet.json()["data_criacao"]
+@pytest.mark.anyio
+async def teste_api_erro_atualizar_tarefa_inexistente(client,popular_database,task):
+    res=await client.put(f"/tarefas/{99}",json=task)
+    assert res.status_code==404
+    assert res.json()["detail"]=="Tarefa não encontrada."
+
+
+# testes Metodo:DELETE------------------------------
+
+# esse teste engloba:
+# Se é possível excluir uma tarefa existente.
+# Se a resposta possui o código HTTP apropriado, como 204 No Content.
+@pytest.mark.anyio
+async def teste_api_exclusao_tarefa_existente(client,popular_database):
+    #deleta
+    res=await client.delete(f"/tarefas/{1}")
+    assert res.status_code==204
+
+@pytest.mark.anyio
+async def teste_api_tarefa_existente_excluida_aparece_lista(client,popular_database):
+    #verificar se a tarefa existe
+    res_get_f= await client.get(f"/tarefas/")
+    
+    assert res_get_f.json()['dados'][0]['id']==1
+
+    #deleta
+    await client.delete(f"/tarefas/{1}")
+
+    #verificar se a tarefa nao existe
+    res_get_l= await client.get(f"/tarefas/")
+    assert res_get_l.json()['dados'][0]['id']!=1
+@pytest.mark.anyio
+async def teste_api_exclusao_codigo_404(client,popular_database):
+    #verificar se a tarefa existe
+    res_get_f= await client.get(f"/tarefas/{1}")
+    assert res_get_f.status_code==200
+
+    #deleta
+    await client.delete(f"/tarefas/{1}")
+
+    #verificar se a tarefa nao existe
+    res_get_l= await client.get(f"/tarefas/{1}")
+    assert res_get_l.status_code==404
+
+@pytest.mark.anyio
+async def teste_api_exclusao_tarefa_inexistente_retorna_404(client,popular_database):
+    res=await client.delete(f"/tarefas/{99}")
+    assert res.status_code==404
+    assert res.json()["detail"]=="Tarefa não encontrada."
+
+
+# testes Metodo:Filtros------------------------------
+
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Status_Concluida(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=true")
+    for task in res.json()['dados']:
+        assert task['concluida'] is True,f"Erro: A tarefa {task['id']} não está concluída, mas foi retornada na filtragem por status concluída."
+
+
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Status_Nao_Concluida(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=false")
+    for task in res.json()['dados']:
+        assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
+
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Tag(client,popular_database):
+    res=await client.get(f"/tarefas/?tag=python")
+    for task in res.json()['dados']:
+        assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Titulo(client,popular_database):
+    res=await client.get(f"/tarefas/?titulo=python/")
+    for task in res.json()['dados']:
+        assert "python" in task['titulo'],f"Erro: A tarefa {task['id']} não contem o termo 'python', mas foi retornada na filtragem por titulo."
+
+
+# testes Metodo:Filtros-combinados------------------------------
+@pytest.mark.anyio
+async def teste_api_filtrar_tarefas_por_Titulo_e_Tag(client,popular_database):
+    res=await client.get(f"/tarefas/?concluida=false&tag=python")
+    print(res.status_code)
+    for task in res.json()['dados']:
+        assert task['concluida'] is False,f"Erro: A tarefa {task['id']} está concluída, mas foi retornada na filtragem por status não concluída."
+        assert "python" in task['tags'],f"Erro: A tarefa {task['id']} não possui a tag 'python', mas foi retornada na filtragem por tag."     
+  
+@pytest.mark.parametrize(
+    ("ordenar_por", "ordem", "ids_esperados"),
+    [
+        ("data_criacao", "asc", [2, 4, 1, 3]),
+        ("data_criacao", "desc", [3, 1, 4, 2]),
+        ("data_atualizacao", "asc", [3, 1, 4, 2]),
+        ("data_atualizacao", "desc", [2, 4, 1, 3]),
+        ("titulo", "asc", [4, 2, 3, 1]),
+        ("titulo", "desc", [1, 3, 2, 4]),
+        ("id", "asc", [1, 2, 3, 4]),
+        ("id", "desc", [4, 3, 2, 1]),
+    ],
+)
+@pytest.mark.anyio
+async def teste_api_ordena_tarefas(
+    client, tarefas_para_ordenacao, ordenar_por, ordem, ids_esperados
+):
+    response = await client.get(
+        "/tarefas/",
+        params={"ordenar_por": ordenar_por, "ordem": ordem},
+    )
+
+    assert response.status_code == 200
+    ids_retornados = [tarefa["id"] for tarefa in response.json()["dados"]]
+    assert ids_retornados == ids_esperados
+
+@pytest.mark.anyio
+async def teste_api_rejeita_campo_de_ordenacao_invalido(client,popular_database):
+    response=await client.get(
+        "/tarefas/",
+        params={"ordenar_por":"campo_invalido"},
+    )
+
+    assert response.status_code==400
+    assert response.json()["detail"]=="Ordenar por recebeu um valor invalido."

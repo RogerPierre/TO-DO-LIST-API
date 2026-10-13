@@ -7,7 +7,7 @@ class TaskSquema(BaseModel):
     concluida:bool=False
     tags:list[str]
     data_criacao:datetime=datetime.today()
-    data_atualizacao:datetime|None=None
+    data_atualizacao:datetime=datetime.today()
 
 class TaskDB(TaskSquema):
     id:int
